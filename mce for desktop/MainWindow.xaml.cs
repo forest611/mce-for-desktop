@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace mce_for_desktop
@@ -24,8 +19,8 @@ namespace mce_for_desktop
         List<string> buttonName = new List<string>();
         List<Button> buttons = new List<Button>();
         static Dictionary<int, string[]> itemData = new Dictionary<int, string[]>();
-        int size = 60;
-        int delay = 5000;
+        int size = 5;
+        int delay = 10000;
         static int id = 0;
 
         public MainWindow()
@@ -33,19 +28,12 @@ namespace mce_for_desktop
             InitializeComponent();
             getCSV();
             setButton();
-
+            task();
             //時計処理
             DispatcherTimer timer = new DispatcherTimer() { Interval = new TimeSpan(0, 0, 1) };
             timer.Tick += (s, ex) => { time.Content = DateTime.Now.ToString("h:mm:ss"); };
             timer.Start();
 
-            Task.Run(() =>
-            {
-                getCSV();
-                updateButtonContent();
-                Console.WriteLine("task");
-                Task.Delay(delay);
-            });
 
         }
 
@@ -74,9 +62,11 @@ namespace mce_for_desktop
                 {
                     //utf-8でcsvを読み込む 取得したデータを返す
                     //取得できなかった場合、 catchし、取得できないと返す
-                    var csv = new System.IO.StreamReader($"http://man10.red/mce/{i}/index.csv", System.Text.Encoding.GetEncoding("UTF-8"));
-                    using (csv) ;
-                    itemData.Add(i, csv.ReadLine().Split(new string[] { " ", "　" }, StringSplitOptions.RemoveEmptyEntries));
+                    //$"http://man10.red/mce/{i}/index.csv", System.Text.Encoding.GetEncoding("UTF-8")
+                    var request = new WebClient();
+                    Stream st = request.OpenRead($"http://man10.red/mce/{i}/index.csv");
+                    StreamReader sr = new StreamReader(st);
+                    itemData.Add(i, sr.ReadLine().Split(new string[] { " ", "　" }, StringSplitOptions.RemoveEmptyEntries));
 
                 }
                 catch (System.Exception e)
@@ -101,13 +91,35 @@ namespace mce_for_desktop
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             id = buttonName.IndexOf(((Button)sender).Name);
-            data.Content = itemData[id][0] + "        " + itemData[id][1];
+            updateData();
+            
 
         }
 
         private void update(object sender, RoutedEventArgs e)
         {
+            updateData();
+        }
+
+        async private void task()
+        {
+            await Task.Run(() =>
+            {
+                getCSV();
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    updateData();
+                    updateButtonContent();
+                }));
+                Console.WriteLine("task");
+                Task.Delay(delay);
+            });
+
+        }
+        private void updateData()
+        {
             data.Content = itemData[id][0] + "        " + itemData[id][1];
         }
+
     }
 }

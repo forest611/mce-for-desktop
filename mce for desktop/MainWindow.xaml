@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:mce_for_desktop"
         mc:Ignorable="d"
-        Title="mce for desktop" Height="600" Width="971">
+        Title="MCE for desktop" Height="600" Width="971"
+        Icon="icon.ico">
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="True" Margin="0,0,720,0">
             <StackPanel x:Name="panel">
@@ -15,7 +16,7 @@
             <Label x:Name="time" Content="00:00:00" Width="57"/>
         </Viewbox>
         <Viewbox HorizontalAlignment="Left" Height="144" Margin="320,200,0,0" VerticalAlignment="Top" Width="560">
-            <Label x:Name="data" Content="アイテム名       $0"/>
+            <Label x:Name="data" Content="アイテム名       $0" />
         </Viewbox>
         <Image x:Name="item" HorizontalAlignment="Left" Height="32" Margin="283,261,0,0" VerticalAlignment="Top" Width="32" RenderTransformOrigin="-0.281,0.75"/>
         <Button Content="UPDATE" HorizontalAlignment="Left" Margin="404,407,0,0" VerticalAlignment="Top" Width="390" Height="74" Click="update" FontSize="30"/>
